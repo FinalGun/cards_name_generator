@@ -1,0 +1,31 @@
+version: '3.3'
+
+volumes:
+  static:
+
+services:
+  backend:
+    build: ./name_generator
+    env_file: name_generator/.env
+    volumes:
+      - static:/backend_static
+
+  frontend:
+    container_name: generator-front
+    build: ./frontend
+    depends_on:
+      - backend
+    command: cp -r /app/dist/. /frontend_static/
+    volumes:
+      - static:/frontend_static
+
+  nginx:
+    build: ./nginx
+    env_file: name_generator/.env
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    volumes:
+      - ../frontend/build:/usr/share/nginx/html/
+      - static:/staticfiles/
